@@ -32,11 +32,29 @@ fn fetch_an_integer(id: &str, ver: &str) -> redis::RedisResult<isize> {
     con.get("my_key")
 }
 
+fn fetch_an_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisResult<isize> {
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+    let mut id_date_time = id.to_string();
+    id_date_time.push_str(date);
+    id_date_time.push_str(time);
+
+    let _ : () = con.set(id_date_time, hash)?;
+
+    con.get("my_key")
+}
+
 fn main() {
     let mut io = IoHandler::new();
     io.add_method("openssl_version", move |params: Params| {
         let w = parse_arguments(params)?;
         let _ = fetch_an_integer( &w[0], &w[1]);
+        Ok(Value::String(w.join("-").to_string()))
+    });
+
+    io.add_method("new_track", move |params: Params| {
+        let w = parse_arguments(params)?;
+        let _ = fetch_an_stat( &w[0], &w[1], &w[2], &w[3]);
         Ok(Value::String(w.join("-").to_string()))
     });
 
