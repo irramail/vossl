@@ -36,7 +36,9 @@ fn fetch_an_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisRe
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
     let mut id_date_time = id.to_string();
+    id_date_time.push('_');
     id_date_time.push_str(date);
+    id_date_time.push('_');
     id_date_time.push_str(time);
 
     let _ : () = con.set(id_date_time, hash)?;
