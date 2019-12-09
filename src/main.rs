@@ -32,7 +32,7 @@ fn fetch_an_integer(id: &str, ver: &str) -> redis::RedisResult<isize> {
     con.get("my_key")
 }
 
-fn fetch_an_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisResult<isize> {
+fn fetch_a_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisResult<isize> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
     let mut id_date_time = id.to_string();
@@ -46,6 +46,21 @@ fn fetch_an_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisRe
     con.get("my_key")
 }
 
+fn get_a_stat() -> redis::RedisResult<String>  {
+
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+
+    let keys: Vec<String> = con.keys("**")?;
+    let _ : () = con.set("html", " " )?;
+
+    for key in keys {
+        let content: String = con.get(key.to_string())?;
+        con.append("html", format!("\"{}\":\"{}\",", key.to_string(), content))?;
+    }
+    con.get("html")
+}
+
 fn main() {
     let mut io = IoHandler::new();
     io.add_method("openssl_version", move |params: Params| {
@@ -56,8 +71,13 @@ fn main() {
 
     io.add_method("new_track", move |params: Params| {
         let w = parse_arguments(params)?;
-        let _ = fetch_an_stat( &w[0], &w[1], &w[2], &w[3]);
+        let _ = fetch_a_stat( &w[0], &w[1], &w[2], &w[3]);
         Ok(Value::String(w.join("-").to_string()))
+    });
+
+    io.add_method("get_tracks",  | _params | {
+        let tracks = get_a_stat().unwrap();
+        Ok(Value::String((format!("[{}]", &tracks[..tracks.len()-1])).to_string()))
     });
 
     let server = ServerBuilder::new(io)
