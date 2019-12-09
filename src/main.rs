@@ -51,7 +51,7 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
 
-    let keys: Vec<String> = con.keys("**")?;
+    let keys: Vec<String> = con.keys("*_*_*")?;
     let _ : () = con.set("html", " " )?;
 
     for key in keys {
