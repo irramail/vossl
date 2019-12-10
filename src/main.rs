@@ -62,16 +62,22 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     let keys: Vec<String> = con.keys("*_*_*")?;
     let _ : () = con.set("html", " " )?;
 
-    let mut now_time : u64 = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+    let now_time : u64 = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 
     for key in keys {
         let content: String = con.get(key.to_string())?;
         let v: Vec<&str> = key.split('_').collect();
-        con.append("html", format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content.to_string()))?;
         con.append(format!("{}_html", now_time), format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
         let _ = delete(key.as_str());
     }
 
+    let mut keys: Vec<String> = con.keys("*_html")?;
+    keys.sort();
+    for _ in 1..30 {
+        let content: String = con.get(keys.pop().unwrap())?;
+
+        con.append("html", format!("{}", content.to_string()))?;
+    }
     con.get("html")
 }
 
