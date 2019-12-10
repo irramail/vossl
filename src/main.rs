@@ -73,10 +73,14 @@ fn get_a_stat() -> redis::RedisResult<String>  {
 
     let mut keys: Vec<String> = con.keys("*_html")?;
     keys.sort();
+    let mut uniq_html = String::new();
     for _ in 1..100 {
         let content: String = con.get(keys.pop().unwrap())?;
+        if !uniq_html.contains(content.as_str()) {
+            uniq_html.push_str(content.as_str());
+            con.append("html", content)?;
+        }
 
-        con.append("html", content)?;
     }
     con.get("html")
 }
