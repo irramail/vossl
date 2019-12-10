@@ -3,6 +3,7 @@ extern crate redis;
 use redis::{Client, Commands, Connection, RedisResult};
 use jsonrpc_http_server::jsonrpc_core::{IoHandler, Value, Params, Error};
 use jsonrpc_http_server::{ServerBuilder};
+use std::time::{SystemTime};
 
 fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
     let mut result = Vec::new();
@@ -46,6 +47,14 @@ fn fetch_a_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisRes
     con.get("my_key")
 }
 
+fn del_all() -> redis::RedisResult<String> {
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+
+    let _:() = con.del("*_*_*")?;
+    con.get("html")
+}
+
 fn get_a_stat() -> redis::RedisResult<String>  {
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
@@ -57,9 +66,11 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     for key in keys {
         let content: String = con.get(key.to_string())?;
         let v: Vec<&str> = key.split('_').collect();
-        con.append("html", format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
+        con.append("html", format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content.to_string()))?;
+        con.append(format!("{}_html", SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()), format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
     }
-    con.get("html")
+
+    del_all()
 }
 
 fn main() {
