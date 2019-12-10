@@ -76,7 +76,7 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     for _ in 1..30 {
         let content: String = con.get(keys.pop().unwrap())?;
 
-        con.append("html", format!("{}", content.to_string()))?;
+        con.append("html", content)?;
     }
     con.get("html")
 }
