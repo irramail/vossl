@@ -73,7 +73,7 @@ fn get_a_stat() -> redis::RedisResult<String>  {
 
     let mut keys: Vec<String> = con.keys("*_html")?;
     keys.sort();
-    for _ in 1..30 {
+    for _ in 1..100 {
         let content: String = con.get(keys.pop().unwrap())?;
 
         con.append("html", content)?;
