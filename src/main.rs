@@ -47,12 +47,11 @@ fn fetch_a_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisRes
     con.get("my_key")
 }
 
-fn del_all() -> redis::RedisResult<String> {
+fn delete(key: &str) -> redis::RedisResult<isize> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
 
-    let _:() = con.del("*_*_*")?;
-    con.get("html")
+    con.del(key)
 }
 
 fn get_a_stat() -> redis::RedisResult<String>  {
@@ -63,14 +62,17 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     let keys: Vec<String> = con.keys("*_*_*")?;
     let _ : () = con.set("html", " " )?;
 
+    let mut now_time : u64 = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+
     for key in keys {
         let content: String = con.get(key.to_string())?;
         let v: Vec<&str> = key.split('_').collect();
         con.append("html", format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content.to_string()))?;
-        con.append(format!("{}_html", SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs()), format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
+        con.append(format!("{}_html", now_time), format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
+        let _ = delete(key.as_str());
     }
 
-    del_all()
+    con.get("html")
 }
 
 fn main() {
