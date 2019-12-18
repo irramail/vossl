@@ -63,11 +63,15 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     let _ : () = con.set("html", " " )?;
 
     let now_time : u64 = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
-
+    let mut uniq_html_first = String::new();
     for key in keys {
         let content: String = con.get(key.to_string())?;
         let v: Vec<&str> = key.split('_').collect();
-        con.append(format!("{}_html", now_time), format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
+        if !uniq_html_first.contains(content.as_str()) {
+            uniq_html_first.push_str(content.as_str());
+            con.append(format!("{}_html", now_time), format!("\"{}_{}_{} {}\",", &v[1], &v[2], &v[0], content))?;
+
+        }
         let _ = delete(key.as_str());
     }
 
