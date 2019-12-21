@@ -89,6 +89,24 @@ fn get_a_stat() -> redis::RedisResult<String>  {
     con.get("html")
 }
 
+fn get_names() -> redis::RedisResult<String> {
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+
+    let keys: Vec<String> = con.keys("name_*")?;
+    let _ : () = con.set("all_names", " " )?;
+
+    for key in keys {
+        println!("{:?}", key);
+        let content: String = con.get(key.to_string())?;
+        let v: Vec<&str> = key.split('_').collect();
+
+        con.append(format!("all_names", ), format!("\"{}_{}\",", &v[1], content))?;
+    }
+
+    con.get("all_names")
+}
+
 fn main() {
     let mut io = IoHandler::new();
     io.add_method("openssl_version", move |params: Params| {
@@ -106,6 +124,11 @@ fn main() {
     io.add_method("get_tracks",  | _params | {
         let tracks = get_a_stat().unwrap();
         Ok(Value::String((format!("[{}]", &tracks[..tracks.len()-1])).to_string()))
+    });
+
+    io.add_method("get_names",  | _params | {
+        let names = get_names().unwrap();
+        Ok(Value::String((format!("[{}]", &names[..names.len()-1])).to_string()))
     });
 
     let server = ServerBuilder::new(io)
