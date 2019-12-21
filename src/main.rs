@@ -93,8 +93,10 @@ fn get_names() -> redis::RedisResult<String> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
 
-    let keys: Vec<String> = con.keys("name_*")?;
+    let mut keys: Vec<String> = con.keys("name_*")?;
     let _ : () = con.set("all_names", " " )?;
+
+    keys.sort();
 
     for key in keys {
         println!("{:?}", key);
