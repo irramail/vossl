@@ -99,7 +99,7 @@ fn get_names() -> redis::RedisResult<String> {
     keys.sort();
 
     for key in keys {
-        println!("{:?}", key);
+        //println!("{:?}", key);
         let content: String = con.get(key.to_string())?;
         let v: Vec<&str> = key.split('_').collect();
 
