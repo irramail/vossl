@@ -36,11 +36,12 @@ fn fetch_an_integer(id: &str, ver: &str) -> redis::RedisResult<isize> {
 fn fetch_a_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisResult<isize> {
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
-    let mut id_date_time = id.to_string();
-    id_date_time.push('_');
-    id_date_time.push_str(date);
-    id_date_time.push('_');
-    id_date_time.push_str(time);
+    let id_date_time = format!("{}_{}_{}", id, date, time);
+    //let mut id_date_time = id.to_string();
+    //id_date_time.push('_');
+    //id_date_time.push_str(date);
+    //id_date_time.push('_');
+    //id_date_time.push_str(time);
 
     let _ : () = con.set(id_date_time, hash)?;
 
