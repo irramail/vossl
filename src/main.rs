@@ -120,7 +120,7 @@ fn main() {
     io.add_method("new_track", move |params: Params| {
         let w = parse_arguments(params)?;
         let _ = fetch_a_stat( &w[0], &w[1], &w[2], &w[3]);
-        Ok(Value::String("ok".to_string))
+        Ok(Value::String("ok".to_string()))
     });
 
     io.add_method("get_tracks",  | _params | {
