@@ -1,6 +1,6 @@
 extern crate redis;
 
-use redis::{Client, Commands, Connection, RedisResult};
+use redis::{Commands};
 use jsonrpc_http_server::jsonrpc_core::{IoHandler, Value, Params, Error};
 use jsonrpc_http_server::{ServerBuilder};
 use std::time::{SystemTime};
@@ -26,7 +26,7 @@ fn parse_arguments (p: Params) -> Result<Vec<String>, Error> {
 }
 
 fn fetch_an_integer(id: &str, ver: &str) -> redis::RedisResult<isize> {
-    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let client = redis::Client::open("redis://192.168.0.9/")?;
     let mut con = client.get_connection()?;
     let _ : () = con.set(id, ver )?;
 
@@ -34,7 +34,7 @@ fn fetch_an_integer(id: &str, ver: &str) -> redis::RedisResult<isize> {
 }
 
 fn fetch_a_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisResult<isize> {
-    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let client = redis::Client::open("redis://192.168.0.9/")?;
     let mut con = client.get_connection()?;
     let id_date_time = format!("{}_{}_{}", id, date, time);
     //let mut id_date_time = id.to_string();
@@ -43,13 +43,13 @@ fn fetch_a_stat(id: &str, hash: &str, time: &str, date: &str) -> redis::RedisRes
     //id_date_time.push('_');
     //id_date_time.push_str(time);
 
-    let _ : () = con.set(id_date_time, hash)?;
+    let _ : () = con.set_nx(id_date_time, hash)?;
 
     con.get("my_key")
 }
 
 fn delete(key: &str) -> redis::RedisResult<isize> {
-    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let client = redis::Client::open("redis://192.168.0.9/")?;
     let mut con = client.get_connection()?;
 
     con.del(key)
@@ -57,7 +57,7 @@ fn delete(key: &str) -> redis::RedisResult<isize> {
 
 fn get_a_stat() -> redis::RedisResult<String>  {
 
-    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let client = redis::Client::open("redis://192.168.0.9/")?;
     let mut con = client.get_connection()?;
 
     let keys: Vec<String> = con.keys("*_*_*")?;
@@ -96,7 +96,7 @@ fn get_a_stat() -> redis::RedisResult<String>  {
 }
 
 fn get_names() -> redis::RedisResult<String> {
-    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let client = redis::Client::open("redis://192.168.0.9/")?;
     let mut con = client.get_connection()?;
 
     let mut keys: Vec<String> = con.keys("name_*")?;
@@ -141,7 +141,7 @@ fn main() {
 
     let server = ServerBuilder::new(io)
         .threads(3)
-        .start_http(&"127.0.0.1:3030".parse().unwrap())
+        .start_http(&"0.0.0.0:3030".parse().unwrap())
         .unwrap();
 
     server.wait();
