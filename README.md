@@ -4,7 +4,7 @@ read from json rpc over http server and write to redis testing
 # Test
 curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "method": "openssl_version", "id":123, "params": ["asd", "wer"] }' 127.0.0.1:3030
 
-for t in {1..100}; do curl -s  -X POST -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "method": "openssl_version", "id":123, "params": ["qwe'$t'", "ver1"] }' 178.169.70.179 & ; done  >/dev/null
+for t in {1..100}; do curl -s  -X POST -H "Content-Type: application/json" -d '{"jsonrpc": "2.0", "method": "openssl_version", "id":123, "params": ["qwe'$t'", "ver1"] }' $server_ip & ; done  >/dev/null
 
 ```json
 {"jsonrpc": "2.0", "method": "new_track", "id":1, "params": ["445", "muscafe_fastpop_august2022_168.mp3 6%  D30%", "14:27:07", "08/12/22"] }
