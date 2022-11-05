@@ -29,3 +29,8 @@ docker run --restart unless-stopped -dp 3032:3030 bc1a6df9b31e
 # root only
 tcpdump -A -s 0 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)' | grep \"64\"
 ```
+
+Client side
+```
+while :; do  wget --no-check-certificate -O /dev/null --header="Content-Type: application/json" --post-data='{"jsonrpc": "2.0", "method": "new_track", "id":1, "params": [“1”, "'`date +%s`'_a.mp3 2%  D3%", "'`date +%T`'", "'`date +%D`'”] }' http://$server_ip ; sleep 5; done
+```
