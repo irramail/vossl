@@ -23,3 +23,9 @@ docker run --restart unless-stopped -dp 3030:3030 bc1a6df9b31e
 docker run --restart unless-stopped -dp 3031:3030 bc1a6df9b31e
 docker run --restart unless-stopped -dp 3032:3030 bc1a6df9b31e
 ```
+
+# Diagnostics
+```
+# root only
+tcpdump -A -s 0 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)' | grep \"64\"
+```
